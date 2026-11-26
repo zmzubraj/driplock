@@ -12,6 +12,8 @@
 | Shared-pool vesting contracts have been drained through share-accounting bugs (UNCX: about $86k, then about $1.5M across four chains). | **Exact per-stream accounting:** no shares. A per-asset escrow ledger refuses any payout above deposits, and Proof of Lock reconciles the two in public. |
 | Accounting for vesting payouts is left to the user. | **Statements:** every movement per address, with a CSV to copy into a spreadsheet. |
 
+Website: https://driplock.vercel.app
+
 Everything is a gnoweb page rendered from chain state. There is no separate frontend, indexer or server to trust.
 
 ## What is in this repo
@@ -74,6 +76,17 @@ gnokey maketx call -pkgpath gno.land/r/<ns>/driplock -func CreateCoinStreamFor \
 gnokey maketx call -pkgpath gno.land/r/<ns>/driplock -func SetBackup \
   -args 1 -args <backup address> -args 15552000 ... <recipient key>
 ```
+
+## Deploy to Onyx (testnet)
+
+1. Get testnet GNOT for your address at https://faucet.gno.land (Onyx faucet).
+2. Build a copy under your address namespace. This changes nothing on chain:
+   ```bash
+   scripts/prepare-deploy.sh <your g1 address>
+   ```
+3. Run the three printed `gnokey maketx addpkg` commands in order. After each one, wait until its page opens on `https://onyx.testnets.gno.land/...`: the gpao oracle enables new packages after it type-checks them.
+
+Onyx storage costs 100 ugnot per byte (`vm:p:storage_price`). The source-only build is about 53 KB of Gno source, and each command caps its deposit with `-max-deposit`.
 
 ## Security design
 
