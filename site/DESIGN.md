@@ -21,12 +21,16 @@ Tokens that unlock drop by drop. The product is a stream, so the page is built a
 - **Schibsted Grotesk (400 to 800):** everything. Headlines tight (-0.02em), numbers tabular.
 - **JetBrains Mono:** code only.
 
-## Layout idea
+## Layout idea (v3, humanized)
 
-1. A dark tide hero with a large live stream card (the vessel filling drop by drop).
-2. Three product rows that alternate sides, each a real interface fragment.
-3. A tide band with the timeline simulator.
-4. Builders, the inspection record, then the footer.
+The page reads like a maker's own project page, not a SaaS template:
+1. A plain, left-aligned intro with a byline.
+2. The working demo first, on a full-bleed tide band: the vessel and the time slider together.
+3. A narrow essay ("Why another vesting contract?") with one inline chart.
+4. An honest comparison table.
+5. "Run it yourself", then a "Not done yet" list.
+
+Section widths vary on purpose (680, 920, 1040 and full bleed). There are no stat strips, feature-card grids or decorative pills.
 
 ## Signature detail
 
