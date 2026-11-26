@@ -4,202 +4,224 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Driplock, a time lock for tokens on gno.land</title>
-<meta name="description" content="Driplock locks GNOT or GRC20 tokens on a vesting schedule. Like a bank-vault time lock, nobody can open it early, and anyone can check the clock.">
-<meta property="og:title" content="Driplock, a time lock for tokens on gno.land">
-<meta property="og:description" content="Token vesting with proof of lock, binding cancel terms and lost-key recovery, served by the chain itself.">
-<meta property="og:image" content="img/hero-timelock.jpg">
-<meta name="theme-color" content="#4b5257">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23f6f5f0' stroke='%234b5257' stroke-width='3'/%3E%3Cpath d='M16 16 L16 6' stroke='%239c7330' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+<title>Driplock, token vesting you can verify</title>
+<meta name="description" content="Driplock streams GNOT and GRC20 tokens on a vesting schedule on gno.land, and the chain itself publishes proof of every lock.">
+<meta property="og:title" content="Driplock, token vesting you can verify">
+<meta property="og:description" content="Proof of Lock, binding cancel terms and lost-key recovery for token vesting on gno.land.">
+<meta name="theme-color" content="#0c4a55">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='3' width='20' height='26' rx='6' fill='%230c4a55'/%3E%3Crect x='9' y='15' width='14' height='11' rx='3' fill='%2338c2d6'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Mono&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 
-<header class="bar">
-  <div class="wrap bar-row">
-    <a class="mark" href="#top" aria-label="Driplock, back to top">
-      <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13"/><path d="M16 16V7"/><path d="M16 16l6 4"/></svg>
+<header class="top">
+  <div class="wrap top-row">
+    <a class="logo" href="#main" aria-label="Driplock home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="6" y="3" width="20" height="26" rx="6"/><rect class="lv" x="9" y="15" width="14" height="11" rx="3"/></svg>
       Driplock
     </a>
     <nav aria-label="Page">
-      <a href="#dial">The dial</a>
-      <a href="#guarantees">Guarantees</a>
-      <a href="#exhibit">Proof</a>
-      <a href="#build">Build</a>
+      <a href="#features">Features</a>
+      <a href="#simulator">Try it</a>
+      <a href="#builders">Builders</a>
       <a class="gh" href="https://github.com/zmzubraj/driplock">GitHub</a>
     </nav>
   </div>
 </header>
 
 <main id="main">
-  <section class="hero" id="top">
-    <img class="hero-photo" src="img/hero-timelock.jpg" alt="Three brass clock movements of an antique bank-vault time lock behind glass on a steel vault door" width="1536" height="1024" fetchpriority="high">
-    <div class="wrap">
-      <div class="plate hero-plate">
-        <h1>A time lock for tokens.</h1>
-        <p>Since the 1870s, bank vaults have used clockwork time locks. Once the clock is wound, the door stays shut until it runs down. Not the manager, not a robber, nobody opens it early.</p>
-        <p>Driplock does that for GNOT and GRC20 tokens on gno.land. You lock tokens on a vesting schedule, the recipient draws what has unlocked, and the chain publishes the state of every lock for anyone to check.</p>
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <h1>Token vesting you can verify.</h1>
+        <p class="lead">Driplock releases GNOT and GRC20 tokens on a schedule, one drop at a time. Anyone can check what is locked, when it unlocks and who can still cancel it, straight from the chain.</p>
         <div class="actions">
-          <a class="btn brass" href="#dial">Turn the dial</a>
-          <a class="btn plain" href="https://github.com/zmzubraj/driplock">Read the source</a>
+          <a class="btn solid" href="#simulator">Try the simulator</a>
+          <a class="btn line" href="https://github.com/zmzubraj/driplock">View on GitHub</a>
         </div>
-        <p class="small">Built and tested on gno v1.8.0, the version the Onyx testnet runs. Testnet deployment is next.</p>
+        <p class="note">Open source, built on gno.land for the Gnome Tavern Hackathon. Tested on gno v1.8.0; testnet deployment is next.</p>
+      </div>
+
+      <div class="stream-card" aria-label="Example stream: a 12,000 DRIP team grant unlocking monthly">
+        <div class="sc-head">
+          <div>
+            <p class="sc-title">Team grant, stream 1</p>
+            <p class="sc-sub">12 monthly unlocks after a 3-month cliff</p>
+          </div>
+          <span class="pill" id="hero-pill">Before cliff</span>
+        </div>
+        <div class="sc-body">
+          <svg class="vessel" viewBox="0 0 140 220" aria-hidden="true">
+            <defs><clipPath id="vclip"><rect x="10" y="10" width="120" height="200" rx="22"/></clipPath></defs>
+            <rect class="v-shell" x="10" y="10" width="120" height="200" rx="22"/>
+            <g clip-path="url(#vclip)">
+              <path id="liquid" class="v-liquid" d="M0 210 H140 V220 H0Z"/>
+            </g>
+            <g id="v-ticks"></g>
+            <circle id="drop" class="v-drop" cx="70" cy="-10" r="5"/>
+          </svg>
+          <dl class="sc-stats">
+            <div><dt>Unlocked</dt><dd><span id="hero-vested">0</span> <small>DRIP</small></dd></div>
+            <div><dt>Still locked</dt><dd class="amber"><span id="hero-locked">12,000</span> <small>DRIP</small></dd></div>
+            <div><dt>Month</dt><dd><span id="hero-month">0</span> <small>of 12</small></dd></div>
+          </dl>
+        </div>
+        <div class="sc-terms">
+          <span><b>Cancel terms</b> only before the cliff</span>
+          <span><b>Recovery</b> backup after 180 days</span>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="dial-section" id="dial" aria-labelledby="dial-title">
-    <div class="wrap dial-grid">
-      <div class="dial-copy">
-        <h2 id="dial-title">Wind it, then watch it run.</h2>
-        <p>A team grant of <strong>12,000 DRIP</strong> over twelve months. It unlocks once a month after a three-month cliff. The sender may cancel only before the cliff, and the recipient has named a backup that can take over after six months of silence.</p>
-        <p>Move the clock forward and see exactly what the chain would let each party do.</p>
-
-        <label class="field" for="month">Months since the grant <output id="month-out" for="month">0</output></label>
-        <input id="month" type="range" min="0" max="18" step="0.25" value="0">
-
-        <label class="check"><input id="lost" type="checkbox"> The recipient loses their key after month 4</label>
-      </div>
-
-      <figure class="dial-figure">
-        <svg id="dial-svg" viewBox="0 0 320 320" role="img" aria-labelledby="dial-desc">
-          <desc id="dial-desc">A clock dial with twelve monthly marks. The first three months are marked as the cliff. A hand shows the time elapsed.</desc>
-          <circle class="bezel" cx="160" cy="160" r="152"/>
-          <circle class="face" cx="160" cy="160" r="136"/>
-          <path id="cliff-arc" class="cliff-arc"/>
-          <path id="vested-arc" class="vested-arc"/>
-          <g id="ticks"></g>
-          <g id="numerals" class="numerals"></g>
-          <line id="hand" class="hand" x1="160" y1="160" x2="160" y2="44"/>
-          <circle class="hub" cx="160" cy="160" r="9"/>
-        </svg>
-        <figcaption>One turn is twelve months. The red arc is the cliff.</figcaption>
-      </figure>
-
-      <dl class="readout" aria-live="polite">
-        <div><dt>Unlocked so far</dt><dd id="r-vested">0 DRIP</dd></div>
-        <div><dt>Still locked</dt><dd id="r-locked">12,000 DRIP</dd></div>
-        <div><dt>Sender can cancel?</dt><dd id="r-cancel">Yes, until month 3</dd></div>
-        <div><dt>Who can withdraw</dt><dd id="r-owner">The recipient</dd></div>
-      </dl>
-    </div>
-  </section>
-
-  <section class="guarantees" id="guarantees" aria-labelledby="g-title">
+  <section class="features" id="features" aria-labelledby="f-title">
     <div class="wrap">
-      <div class="plate steel">
-        <h2 id="g-title">What the clock guarantees</h2>
-        <dl class="specs">
-          <div class="spec">
-            <dt>Anyone can check the lock</dt>
-            <dd>
-              <p class="why">Today a holder has to trust that "team tokens are locked". Unlock calendars live on third-party trackers, and those trackers ask you to verify big unlocks yourself.</p>
-              <p>Every token held by Driplock gets a page served by the chain: how much is locked, how much is still vesting, how much a sender could still cancel, a twelve-month unlock calendar, and a check that every stream adds up to the escrow.</p>
-            </dd>
+      <h2 id="f-title" class="center-h">Vesting tools ask for trust. Driplock shows its work.</h2>
+
+      <article class="row">
+        <div class="row-copy">
+          <h3>Proof of Lock, published by the chain</h3>
+          <p>"Team tokens are locked" is usually a promise. The unlock calendars people rely on are copies kept by third-party trackers, and those trackers ask you to double-check big unlocks yourself.</p>
+          <p>Driplock gives every token a page served straight from the chain: what is locked, what is still vesting, what senders could still cancel, the next twelve months of unlocks, and a check that every stream adds up to the escrow.</p>
+        </div>
+        <div class="ui-card cal-card" aria-label="Example unlock calendar">
+          <div class="ui-head"><span>Proof of Lock: GNOT</span><span class="ok">Reconciled with escrow</span></div>
+          <div class="kpis">
+            <div><span>Locked</span><b>21 GNOT</b></div>
+            <div><span>Still cancelable</span><b class="amber-t">12 GNOT</b></div>
+            <div><span>Live streams</span><b>4</b></div>
           </div>
-          <div class="spec">
-            <dt>Cancel terms are fixed at the start</dt>
-            <dd>
-              <p class="why">On many platforms an admin can revoke vesting at any time.</p>
-              <p>A Driplock stream states its cancel window when it is created, for example "only before the cliff". The stream page shows it, and the chain refuses any cancel after it. What has unlocked is never taken back.</p>
-            </dd>
+          <div class="bars" id="bars" role="img" aria-label="Unlocks per 30-day window over the next 12 months, highest in month 3 at 4.75 GNOT"></div>
+          <p class="ui-foot">Unlocks per 30-day window, next 12 months. Numbers from a local gno.land node running Driplock.</p>
+        </div>
+      </article>
+
+      <article class="row flip">
+        <div class="row-copy">
+          <h3>Cancel terms fixed on day one</h3>
+          <p>On many platforms an admin can revoke vesting whenever they like. In Driplock the sender picks a cancel window when the stream is created, for example "only before the cliff", and the chain refuses any cancel after it.</p>
+          <p>What has already unlocked always belongs to the recipient. There is no admin key that can override a stream.</p>
+        </div>
+        <div class="ui-card terms-card" aria-label="Example cancel terms on three streams">
+          <div class="term">
+            <div><b>Stream 1, 12 GNOT</b><span>Cancelable until 24 Feb 2027, the cliff date</span></div>
+            <span class="pill amber-p">Window open</span>
           </div>
-          <div class="spec">
-            <dt>A lost key is not the end</dt>
-            <dd>
-              <p class="why">Lose the key to a vesting wallet and every future unlock is gone.</p>
-              <p>The recipient names a backup address and a silence period. If the recipient stays silent that long, the backup takes the stream over. Payouts triggered by someone else do not reset the clock, so nobody can stall a recovery.</p>
-            </dd>
+          <div class="term">
+            <div><b>Stream 2, 6 GNOT</b><span>The sender cannot take anything back</span></div>
+            <span class="pill teal-p">Never cancelable</span>
           </div>
-          <div class="spec">
-            <dt>No pooled accounting to break</dt>
-            <dd>
-              <p class="why">Shared-pool vesting contracts have been drained through share-accounting bugs. The UNCX incidents lost about $86,000 and later about $1.5 million.</p>
-              <p>Each stream holds exact units, with no shares. A per-token ledger refuses any payout above what was deposited, and the public lock page reconciles the two.</p>
-            </dd>
+          <div class="term">
+            <div><b>Stream 4, 2 GNOT</b><span>Its window closed at the cliff</span></div>
+            <span class="pill grey-p">No longer cancelable</span>
           </div>
+        </div>
+      </article>
+
+      <article class="row">
+        <div class="row-copy">
+          <h3>A spare key for every stream</h3>
+          <p>Lose the key to a vesting wallet and every future unlock is gone for good. Driplock lets the recipient name a backup address and a silence period.</p>
+          <p>Any withdrawal or a one-line ping resets the clock. If the recipient stays silent past it, the backup takes the stream over. Payouts triggered by other people never reset the clock, so nobody can stall a recovery.</p>
+        </div>
+        <div class="ui-card rec-card" aria-label="Recovery timeline">
+          <ol class="timeline">
+            <li class="done"><b>Recipient sets a backup</b><span>Silence period: 180 days</span></li>
+            <li class="done"><b>Last activity</b><span>Withdrawal on 1 Mar 2027</span></li>
+            <li class="wait"><b>Silence</b><span>No withdrawals or pings for 180 days</span></li>
+            <li class="next"><b>Backup can claim</b><span>From 28 Aug 2027, everything still owed moves to the backup</span></li>
+          </ol>
+          <p class="ui-foot">Example timeline.</p>
+        </div>
+      </article>
+
+      <div class="more">
+        <div><h4>Exact accounting</h4><p>Each stream holds exact units, with no shared pool. Pooled share-accounting bugs drained about $86,000 and later about $1.5 million in the UNCX incidents.</p></div>
+        <div><h4>Monthly or continuous</h4><p>Unlock every second, or in monthly or quarterly steps, with an optional cliff.</p></div>
+        <div><h4>Whole teams at once</h4><p>Up to fifty recipients from a single payment, all or nothing.</p></div>
+        <div><h4>Statements</h4><p>Every movement per address, with a CSV file ready for a spreadsheet.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sim" id="simulator" aria-labelledby="s-title">
+    <div class="wrap">
+      <h2 id="s-title">Run a grant forward in time</h2>
+      <p class="sim-lead">A 12,000 DRIP team grant with monthly unlocks, a 3-month cliff, a cancel window that closes at the cliff, and a backup with a 6-month silence period. These are the same rules the contract enforces.</p>
+
+      <div class="sim-panel">
+        <div class="track" aria-hidden="true">
+          <div class="track-cancel" style="width:calc(3 / 18 * 100%)"><span>Cancel window</span></div>
+          <div class="track-fill" id="track-fill"></div>
+          <div class="track-marks" id="track-marks"></div>
+        </div>
+        <label class="sr" for="month">Months since the grant</label>
+        <input id="month" type="range" min="0" max="18" step="0.25" value="0">
+        <div class="track-scale" aria-hidden="true"><span>Start</span><span>Cliff, month 3</span><span>Fully unlocked, month 12</span><span>Month 18</span></div>
+
+        <label class="toggle"><input id="lost" type="checkbox"> The recipient loses their key after month 4</label>
+
+        <dl class="sim-out" aria-live="polite">
+          <div><dt>Month</dt><dd id="r-month">0</dd></div>
+          <div><dt>Unlocked</dt><dd id="r-vested">0 DRIP</dd></div>
+          <div><dt>Still locked</dt><dd id="r-locked">12,000 DRIP</dd></div>
+          <div><dt>Sender can cancel</dt><dd id="r-cancel">Yes, until month 3</dd></div>
+          <div class="wide"><dt>Who can withdraw</dt><dd id="r-owner">The recipient</dd></div>
         </dl>
       </div>
     </div>
   </section>
 
-  <section class="exhibit" id="exhibit" aria-labelledby="ex-title">
-    <div class="wrap ex-grid">
-      <div>
-        <h2 id="ex-title">The page is the proof</h2>
-        <p>gno.land renders a contract's pages straight from its own state. No website or indexer sits in between. That is the page on the right, from a local gno.land node running the real Driplock code with four sample streams.</p>
-        <p>Every holder, exchange or journalist can open the same page for any token on the live network and read the numbers the chain will enforce.</p>
-        <ul class="facts">
-          <li>Locked, still vesting, claimable and cancelable, per token</li>
-          <li>What unlocks in each 30-day window for the next year</li>
-          <li>Every live stream with its cancel terms</li>
-          <li>A statement with a CSV file for each address, for accounting</li>
-        </ul>
-      </div>
-      <figure class="paper">
-        <img src="img/proof-of-lock.jpg" alt="The Proof of Lock page for GNOT: 21 GNOT locked, 12 GNOT still cancelable, four live streams, reconciled with the escrow ledger, and an unlock calendar" width="800" height="667" loading="lazy">
-        <figcaption>Proof of Lock page, local gno.land node, 26 November 2026.</figcaption>
-      </figure>
-    </div>
-  </section>
-
-  <section class="recovery" aria-labelledby="rec-title">
-    <div class="wrap rec-grid">
-      <img src="img/vault-door.jpg" alt="A round steel vault door standing half open, with a spare key ring on a hook beside the frame" width="1024" height="1024" loading="lazy">
-      <div>
-        <h2 id="rec-title">Keep a spare key by the door</h2>
-        <p>A recipient sets a backup once:</p>
-        <pre><code>SetBackup(stream, backupAddress, 180 days)</code></pre>
-        <p>Withdrawing or a one-line <code>Ping</code> shows the recipient is still there. After 180 days of silence, the backup calls <code>ClaimAsBackup</code> and owns what is still owed. Moving a stream to a new owner clears the old backup, so a former owner's backup has no power.</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="build" id="build" aria-labelledby="b-title">
+  <section class="builders" id="builders" aria-labelledby="b-title">
     <div class="wrap b-grid">
       <div>
-        <h2 id="b-title">For teams and builders</h2>
-        <p>Vest a whole team in one transaction, with up to fifty recipients paid from a single payment. Choose monthly or quarterly steps or a continuous release, and add a cliff. It works with GNOT or any GRC20 token in the gno.land token registry.</p>
-        <p>The schedule math is a separate package any contract can import. Read functions return copies, so a DAO, a launchpad or an explorer can build on Driplock without trusting it with anything.</p>
+        <h2 id="b-title">Built to be built on</h2>
+        <p>The schedule math is a standalone package any gno.land contract can import. Read functions return copies, so a DAO, a launchpad or an explorer can use Driplock without trusting it with anything.</p>
+        <ul class="api">
+          <li><code>CreateCoinStreamFor</code> takes the cliff, duration, step and cancel window in seconds</li>
+          <li><code>CreateCoinStreamBatch</code> pays up to 50 recipients from one payment</li>
+          <li><code>SetBackup</code>, <code>Ping</code> and <code>ClaimAsBackup</code> handle lost-key recovery</li>
+          <li><code>GetLockSummary</code> and <code>ListStreams</code> are paged read APIs</li>
+        </ul>
       </div>
-      <pre class="code"><code><span class="c"># 12 GNOT over 12 months, monthly, 3-month cliff,
-# cancelable only before the cliff (M = 30 days)</span>
-gnokey maketx call -pkgpath gno.land/r/&lt;ns&gt;/driplock \
+      <pre class="code"><code><span class="c"># 12 GNOT over 12 months, monthly steps,
+# 3-month cliff, cancelable only before the cliff
+</span>M=2592000
+gnokey maketx call \
+  -pkgpath gno.land/r/&lt;ns&gt;/driplock \
   -func CreateCoinStreamFor \
   -args &lt;recipient&gt; \
-  -args $((3*M)) -args $((12*M)) -args $M -args $((3*M)) \
+  -args $((3*M)) -args $((12*M)) \
+  -args $M -args $((3*M)) \
   -send 12000000ugnot ...</code></pre>
     </div>
   </section>
 
-  <section class="testsheet" aria-labelledby="t-title">
+  <section class="record" aria-labelledby="r-title">
     <div class="wrap">
-      <h2 id="t-title">Inspection record</h2>
-      <table>
-        <tbody>
-          <tr><th scope="row">Automated tests</th><td>57 passing (11 schedule math, 46 contract)</td></tr>
-          <tr><th scope="row">Planted bugs</th><td>9 deliberate bugs injected, each caught by the tests</td></tr>
-          <tr><th scope="row">Admin keys</th><td>None. No function lets anyone override a stream.</td></tr>
-          <tr><th scope="row">Cost of the lock page</th><td>About 4% of a node's query budget at 200 live streams</td></tr>
-          <tr><th scope="row">Review checklist</th><td>Follows the gno.land contract review guide: caller identity from the live realm frame, paired payment guards, bounded loops, escaped output</td></tr>
-          <tr><th scope="row">Known limit</th><td>A GRC20 token's own admin controls its ledger. Stream only tokens you trust.</td></tr>
-        </tbody>
-      </table>
+      <h2 id="r-title">Inspection record</h2>
+      <dl class="rec-list">
+        <div><dt>57</dt><dd>automated tests passing, 11 for the schedule math and 46 for the contract</dd></div>
+        <div><dt>9</dt><dd>deliberate bugs planted to test the tests, and each one was caught</dd></div>
+        <div><dt>0</dt><dd>admin keys: no function lets anyone override a stream</dd></div>
+        <div><dt>~4%</dt><dd>of a node's query budget for a Proof of Lock page at 200 live streams</dd></div>
+      </dl>
+      <p class="caveat">Known limit: a GRC20 token's own admin controls its ledger, so only stream tokens you trust.</p>
     </div>
   </section>
 </main>
 
 <footer class="foot">
   <div class="wrap foot-row">
-    <p>Driplock is open source under the MIT license, built for the Gnome Tavern Hackathon on gno.land.</p>
+    <span>Driplock is MIT licensed and built for the Gnome Tavern Hackathon on gno.land.</span>
     <a href="https://github.com/zmzubraj/driplock">github.com/zmzubraj/driplock</a>
   </div>
 </footer>
 
-<script src="dial.js" defer></script>
+<script src="app.js" defer></script>
 </body>
 </html>
