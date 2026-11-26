@@ -30,6 +30,66 @@
     });
   });
 
+  // ---- Hero: drops fall onto the photo's splash and spread ripples ----
+  // The photo (1664x928) has its splash at about 49.7% across and 70% down.
+  (function rain() {
+    var cv = $("rain");
+    if (!cv || reduced || !cv.getContext) return;
+    var ctx = cv.getContext("2d"), dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var W = 0, H = 0, SX = 0, SY = 0, SCALE = 1;
+    function size() {
+      W = cv.clientWidth; H = cv.clientHeight;
+      cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (window.matchMedia("(max-width: 680px)").matches) {
+        // Phones: the photo is 52% of the hero's height, anchored to the bottom (see styles.css).
+        SCALE = (H * 0.52) / 928;
+        SX = W / 2 + (0.497 - 0.5) * 1664 * SCALE;
+        SY = H - (1 - 0.70) * 928 * SCALE;
+      } else {
+        SCALE = Math.max(W / 1664, H / 928);
+        SX = W / 2 + (0.497 - 0.5) * 1664 * SCALE;
+        SY = H / 2 + (0.70 - 0.5) * 928 * SCALE;
+      }
+    }
+    size(); window.addEventListener("resize", size);
+
+    var drops = [], rings = [], nextMain = 900, nextSide = 2600, visible = true;
+    document.addEventListener("visibilitychange", function () { visible = !document.hidden; });
+    function fall(x, y, main) { drops.push({ x: x, y: -30, floor: y, vy: 3, main: main }); }
+
+    function tick(now) {
+      if (visible) {
+        if (now > nextMain) { fall(SX, SY - 34 * SCALE, true); nextMain = now + 2600; }
+        if (now > nextSide) {
+          var x = W * (0.12 + Math.random() * 0.76), y = SY + (Math.random() * 0.5 - 0.1) * 120 * SCALE;
+          if (Math.abs(x - SX) > 160 * SCALE) fall(x, y, false);
+          nextSide = now + 1800 + Math.random() * 2400;
+        }
+        ctx.clearRect(0, 0, W, H);
+        for (var i = drops.length - 1; i >= 0; i--) {
+          var d = drops[i];
+          d.vy += 0.22; d.y += d.vy;
+          ctx.fillStyle = d.main ? "rgba(190, 240, 247, 0.85)" : "rgba(143, 227, 239, 0.55)";
+          ctx.beginPath(); ctx.ellipse(d.x, d.y, d.main ? 3.2 : 2, d.main ? 5 : 3.4, 0, 0, Math.PI * 2); ctx.fill();
+          if (d.y >= d.floor) {
+            var n = d.main ? 3 : 1;
+            for (var k = 0; k < n; k++) rings.push({ x: d.x, y: d.floor + (d.main ? 30 * SCALE : 0), r: 4 + k * 10, a: d.main ? 0.55 - k * 0.12 : 0.35, w: d.main ? 1.6 : 1.1 });
+            drops.splice(i, 1);
+          }
+        }
+        for (var j = rings.length - 1; j >= 0; j--) {
+          var r = rings[j];
+          r.r += 1.25; r.a *= 0.982;
+          ctx.strokeStyle = "rgba(143, 227, 239, " + r.a.toFixed(3) + ")"; ctx.lineWidth = r.w;
+          ctx.beginPath(); ctx.ellipse(r.x, r.y, r.r * 2.4, r.r * 0.5, 0, 0, Math.PI * 2); ctx.stroke();
+          if (r.a < 0.02) rings.splice(j, 1);
+        }
+      }
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  })();
+
   var range = $("month");
   if (!range) return;
   var lost = $("lost"), fill = $("track-fill"), marks = $("track-marks");

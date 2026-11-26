@@ -14,32 +14,47 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
+<script>if (!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) document.documentElement.classList.add("anim");</script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 
-<header class="top">
-  <div class="top-row">
-    <a class="logo" href="#main" aria-label="Driplock, top of page">
-      <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="6" y="3" width="20" height="26" rx="6"/><rect class="lv" x="9" y="15" width="14" height="11" rx="3"/></svg>
-      Driplock
-    </a>
-    <nav aria-label="Page">
-      <a href="#demo">Demo</a>
-      <a href="#why">Why</a>
-      <a href="#compare">Compare</a>
-      <a href="#run">Run it</a>
-      <a href="https://github.com/zmzubraj/driplock">GitHub</a>
-    </nav>
-  </div>
-</header>
+<!-- avoid-ai-design-ignore: L1 (the owner asked for a centered heading over a real photo) -->
+<div class="hero" id="top">
+  <div class="hero-bg" aria-hidden="true"></div>
+  <canvas class="hero-rain" id="rain" aria-hidden="true"></canvas>
 
-<main id="main">
-  <div class="intro">
-    <h1>Vesting that pays out on schedule, with the proof on chain</h1>
-    <p>Driplock is a gno.land contract for token vesting. You lock GNOT or a GRC20 token for someone, it unlocks month by month, and a page served by the chain shows what is still locked and who could still cancel it.</p>
-    <p class="by">Built by <a href="https://github.com/zmzubraj">zmzubraj</a> for the Gnome Tavern hackathon, November 2026.</p>
+  <header class="top">
+    <div class="top-row">
+      <a class="logo" href="#main" aria-label="Driplock, top of page">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="6" y="3" width="20" height="26" rx="6"/><rect class="lv" x="9" y="15" width="14" height="11" rx="3"/></svg>
+        Driplock
+      </a>
+      <nav aria-label="Page">
+        <a href="#usps">What's different</a>
+        <a href="#demo">Demo</a>
+        <a href="#compare">Compare</a>
+        <a href="#run">Run it</a>
+        <a href="https://github.com/zmzubraj/driplock">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="hero-center" id="main">
+    <p class="hero-pre reveal">Token vesting on gno.land</p>
+    <h1 class="reveal">Vesting that pays out on schedule, with the proof on chain</h1>
+    <p class="hero-sub reveal">Lock GNOT or a GRC20 token for someone. It unlocks month by month, and the chain itself shows what is still locked and who could still cancel it.</p>
+    <div class="hero-actions reveal">
+      <a class="btn solid" href="#demo">Try the demo</a>
+      <a class="btn ghost" href="https://github.com/zmzubraj/driplock">Read the code</a>
+    </div>
+
+    <a class="scroll-cue reveal" href="#usps">See what's different</a>
+    <p class="by reveal">Built by <a href="https://github.com/zmzubraj">zmzubraj</a> for the Gnome Tavern hackathon, November 2026.</p>
   </div>
+</div>
+
+<main>
 
   <!-- avoid-ai-design-ignore: L2 (the owner asked for the USPs as highlighted cards; each card carries its own drawing and real data) -->
   <section class="usps" id="usps" aria-labelledby="usp-title">

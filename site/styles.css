@@ -28,22 +28,71 @@ h1, h2 { letter-spacing: -0.02em; margin: 0; }
 code { font-family: var(--mono); font-size: 0.85em; background: #e4ecee; padding: 1px 4px; border-radius: 4px; }
 p { margin: 0 0 1.1em; }
 
-/* Header: a plain line, not a hero bar */
-.top { border-bottom: 1px solid var(--line); }
-.top-row { max-width: 1120px; margin: 0 auto; padding: 0 20px; height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-.logo { display: flex; align-items: center; gap: 9px; color: var(--ink); font-weight: 800; font-size: 19px; text-decoration: none; }
-.logo svg { width: 22px; height: 22px; fill: none; stroke: var(--tide); stroke-width: 2.5; }
-.logo .lv { fill: var(--drip); stroke: none; }
-nav { display: flex; gap: 20px; font-size: 15px; }
-nav a { color: var(--ink-2); text-decoration: none; }
-nav a:hover { color: var(--ink); text-decoration: underline; }
-@media (max-width: 640px) { nav a:not(:last-child) { display: none; } }
+/* Hero: full-bleed photo, centered heading, the glass */
+.hero { position: relative; overflow: hidden; color: #fff; background: #06262c; isolation: isolate; }
+.hero-bg { position: absolute; inset: 0; z-index: -2;
+  background:
+    linear-gradient(180deg, rgba(6, 38, 44, 0.72) 0%, rgba(6, 38, 44, 0.35) 45%, rgba(6, 38, 44, 0.05) 75%, rgba(6, 38, 44, 0.45) 100%),
+    url("img/hero-drop.jpg") center center / cover no-repeat,
+    radial-gradient(ellipse at 50% 85%, #125c69 0%, #0a3a43 45%, #06262c 100%);
+  transform-origin: 50% 70%; animation: drift 26s ease-in-out infinite alternate; }
+@keyframes drift { from { transform: scale(1.02); } to { transform: scale(1.07); } }
+.hero-rain { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
 
-/* Intro: left-aligned, editorial width */
-.intro { max-width: 760px; margin: 0 auto; padding: 64px 20px 40px; }
-h1 { font-size: clamp(34px, 5vw, 54px); line-height: 1.05; font-weight: 800; margin-bottom: 22px; letter-spacing: -0.03em; }
-.intro p { font-size: 20px; color: var(--ink-2); max-width: 36em; }
-.intro .by { font-size: 15px; margin: 0; }
+.top { position: relative; z-index: 2; }
+.top-row { max-width: 1160px; margin: 0 auto; padding: 0 20px; height: 66px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.logo { display: flex; align-items: center; gap: 9px; color: #fff; font-weight: 800; font-size: 20px; text-decoration: none; }
+.logo svg { width: 24px; height: 24px; fill: none; stroke: #bfe9ef; stroke-width: 2.5; }
+.logo .lv { fill: var(--drip); stroke: none; }
+nav { display: flex; gap: 22px; font-size: 15px; }
+nav a { color: #cfe6ea; text-decoration: none; }
+nav a:hover { color: #fff; text-decoration: underline; }
+@media (max-width: 680px) { nav a:not(:last-child) { display: none; } }
+
+.hero { min-height: max(720px, min(100vh, 940px)); display: flex; flex-direction: column; }
+.hero-center { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 48px 20px 0; text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; }
+.scroll-cue { margin-top: auto; color: #cfe6ea; font-size: 15px; text-decoration: none; padding: 8px 4px; }
+.scroll-cue::after { content: ""; display: block; width: 1.5px; height: 28px; margin: 8px auto 0; background: linear-gradient(#8fe3ef, transparent); }
+.scroll-cue:hover { color: #fff; }
+.hero-pre { font-size: 16px; font-weight: 600; color: var(--drip); margin: 0 0 14px; }
+.hero h1 { font-size: clamp(38px, 6vw, 68px); line-height: 1.03; font-weight: 800; letter-spacing: -0.035em; margin: 0 auto 20px; max-width: 14em; text-wrap: balance; }
+.hero-sub { font-size: clamp(17px, 2vw, 20px); color: #d3e9ec; max-width: 36em; margin: 0 auto 28px; text-wrap: pretty; }
+.hero-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-bottom: 40px; }
+.btn { display: inline-flex; align-items: center; padding: 13px 24px; border-radius: 999px; font-weight: 600; text-decoration: none; transition: background 0.15s ease, box-shadow 0.15s ease; }
+.btn.solid { background: var(--drip); color: #06262c; }
+.btn.solid:hover { background: #63d3e3; }
+.btn.ghost { color: #fff; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.5); }
+.btn.ghost:hover { box-shadow: inset 0 0 0 1.5px #fff; }
+
+.glass { margin: 0 auto; width: 170px; }
+.glass-svg { width: 100%; height: auto; overflow: visible; display: block; filter: drop-shadow(0 24px 30px rgba(0, 0, 0, 0.45)); }
+.g-shell { fill: rgba(255, 255, 255, 0.07); stroke: rgba(214, 240, 244, 0.75); stroke-width: 2.5; }
+.g-shine { stroke: rgba(255, 255, 255, 0.35); stroke-width: 3; stroke-linecap: round; fill: none; }
+.g-liquid { fill: var(--drip); opacity: 0.92; }
+.g-tick { stroke: rgba(214, 240, 244, 0.55); stroke-width: 1.5; }
+.g-drop { fill: #8fe3ef; opacity: 0; }
+.glass figcaption { margin-top: 14px; font-size: 15px; color: #cfe6ea; line-height: 1.45; }
+.glass figcaption b { font-size: 26px; color: #fff; }
+.hero .by { font-size: 14px; color: #9fc6cc; margin: 14px 0 26px; }
+.hero .by a { color: #cfe6ea; }
+
+/* Entrance: each piece rises in, one after another */
+/* Visible by default; the animation is added only when JS marks the page and motion is allowed. */
+.anim .reveal { animation: rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.hero-pre.reveal { animation-delay: 0.05s; }
+.hero h1.reveal { animation-delay: 0.15s; }
+.hero-sub.reveal { animation-delay: 0.3s; }
+.hero-actions.reveal { animation-delay: 0.42s; }
+.glass.reveal { animation-delay: 0.55s; }
+.hero .by.reveal { animation-delay: 0.7s; }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .anim .reveal { animation: none; }
+  .hero-bg { animation: none; }
+}
+
+/* USP section now opens the page body */
+.usps { padding-top: 64px !important; }
 
 /* Demo: full-bleed tide band */
 .demo { background: var(--tide); color: #eaf6f7; }
@@ -181,4 +230,17 @@ input[type="range"] { width: 100%; margin: 12px 0 4px; accent-color: var(--drip)
   .usp-books { gap: 14px; }
   .usp-figures { gap: 18px; }
   .usp-figures span { display: block; line-height: 1.3; margin-top: 4px; }
+}
+
+/* Phones: keep the splash low, below the heading and buttons */
+@media (max-width: 680px) {
+  .hero-bg {
+    background:
+      linear-gradient(180deg, rgba(6, 38, 44, 0.55) 0%, rgba(6, 38, 44, 0.2) 55%, rgba(6, 38, 44, 0.05) 80%, rgba(6, 38, 44, 0.45) 100%),
+      url("img/hero-drop.jpg") center bottom / auto 52% no-repeat,
+      #010709;
+  }
+  .hero { background: #010709; }
+  .scroll-cue { display: none; }
+  .hero .by { margin-top: auto; }
 }
