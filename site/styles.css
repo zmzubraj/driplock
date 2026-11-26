@@ -40,7 +40,7 @@ nav a:hover { color: var(--ink); text-decoration: underline; }
 @media (max-width: 640px) { nav a:not(:last-child) { display: none; } }
 
 /* Intro: left-aligned, editorial width */
-.intro { max-width: 760px; margin: 0 auto; padding: 64px 20px 44px; }
+.intro { max-width: 760px; margin: 0 auto; padding: 64px 20px 40px; }
 h1 { font-size: clamp(34px, 5vw, 54px); line-height: 1.05; font-weight: 800; margin-bottom: 22px; letter-spacing: -0.03em; }
 .intro p { font-size: 20px; color: var(--ink-2); max-width: 36em; }
 .intro .by { font-size: 15px; margin: 0; }
@@ -130,3 +130,55 @@ input[type="range"] { width: 100%; margin: 12px 0 4px; accent-color: var(--drip)
 
 .foot { border-top: 1px solid var(--line); padding: 26px 20px 40px; text-align: center; font-size: 15px; color: var(--ink-2); }
 .foot p { margin: 0; }
+
+/* USP cards: unequal, highlighted, each with its own drawing */
+.usps { max-width: 1120px; margin: 0 auto; padding: 8px 20px 72px; }
+.usp-grid { display: grid; grid-template-columns: 1.15fr 1fr; grid-template-areas: "proof cancel" "proof key" "books books"; gap: 18px; }
+@media (max-width: 860px) { .usp-grid { grid-template-columns: 1fr; grid-template-areas: "proof" "cancel" "key" "books"; } }
+.usp { background: var(--white); border: 1px solid var(--line); border-radius: 14px; padding: 26px; }
+.usp h3 { font-size: 23px; line-height: 1.2; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 8px; }
+.usp p { color: var(--ink-2); font-size: 16px; margin: 0; }
+.usp-proof { grid-area: proof; background: var(--tide); border-color: var(--tide); color: #fff; padding: 32px; display: flex; flex-direction: column; }
+.usp-proof h3 { font-size: clamp(28px, 3vw, 36px); color: #fff; }
+.usp-proof > p { color: #cfe6e9; font-size: 17px; }
+.usp-kicker { font-size: 14px !important; color: var(--drip) !important; font-weight: 600; margin-bottom: 10px !important; }
+.usp-chart { margin-top: auto; padding-top: 26px; }
+.usp-chart-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 14px; color: #a9d0d5; border-top: 1px solid rgba(255, 255, 255, 0.18); padding-top: 14px; }
+.usp-chart-head span:last-child { color: var(--drip); font-weight: 600; }
+.usp-figures { display: flex; gap: 28px; margin: 12px 0 16px; }
+.usp-figures b { display: block; font-size: 34px; line-height: 1; font-weight: 800; color: #fff; }
+.usp-figures div:nth-child(2) b { color: #ffc56e; }
+.usp-figures span { font-size: 13px; color: #a9d0d5; }
+.bars.light { height: 110px; border-bottom-color: rgba(255, 255, 255, 0.2); }
+.bars.light .bar { background: var(--drip); }
+.bars.light .bar.peak { background: #ffc56e; }
+.bars.light .bar span { color: #ffd9a0; }
+.usp-note { font-size: 13px !important; color: #a9d0d5 !important; margin-top: 10px !important; }
+.usp-cancel { grid-area: cancel; }
+.usp-key { grid-area: key; }
+.usp-books { grid-area: books; display: grid; grid-template-columns: 0.9fr 1fr; gap: 28px; align-items: center; background: var(--drip-soft); border-color: #bfe6ed; }
+.usp-books .usp-art { grid-row: span 2; margin: 0; }
+@media (max-width: 860px) { .usp-books { grid-template-columns: 1fr; } .usp-books .usp-art { grid-row: auto; } }
+.usp-art { width: 100%; height: auto; display: block; margin-bottom: 16px; }
+.art-track { fill: #e6eef0; }
+.art-window { fill: #fbe3bd; }
+.art-cliff { stroke: var(--amber); stroke-width: 2.5; }
+.art-shackle { fill: none; stroke: var(--amber-ink); stroke-width: 3; }
+.art-lock { fill: var(--amber); }
+.art-label { font: 500 12px var(--font); fill: var(--ink-2); }
+.art-key circle { fill: none; stroke: var(--tide); stroke-width: 3.5; }
+.art-key .hole { stroke-width: 2.5; }
+.art-key path { fill: none; stroke: var(--tide); stroke-width: 3.5; stroke-linecap: round; }
+.art-key.lost circle, .art-key.lost path { stroke: #a9b8bd; stroke-dasharray: 4 4; }
+.art-key.backup circle, .art-key.backup path { stroke: var(--drip); }
+.art-quiet { stroke: var(--amber); stroke-width: 2.5; stroke-dasharray: 2 7; stroke-linecap: round; }
+.art-pool { fill: #f3f7f8; stroke: #9bb4ba; stroke-width: 2; }
+.art-pool-fill { fill: #b9dfe6; }
+.art-cross { stroke: #c4572c; stroke-width: 3; stroke-linecap: round; opacity: 0.75; }
+.art-vessel { fill: #ffffff; stroke: var(--tide); stroke-width: 2; }
+.art-fill { fill: var(--drip); }
+@media (max-width: 860px) {
+  .usp-books { gap: 14px; }
+  .usp-figures { gap: 18px; }
+  .usp-figures span { display: block; line-height: 1.3; margin-top: 4px; }
+}

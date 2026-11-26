@@ -15,8 +15,9 @@
   }
 
   // Unlock calendar bars, read from a local node's Proof of Lock page.
-  var bars = $("bars");
-  if (bars) {
+  ["bars", "usp-bars"].forEach(function (id) {
+    var bars = $(id);
+    if (!bars) return;
     var data = [1, 1, 4.75, 2, 2, 2.75, 1, 1, 1.75, 1, 1, 1.75];
     var max = Math.max.apply(null, data);
     data.forEach(function (v) {
@@ -27,7 +28,7 @@
       if (v === max) { var s = document.createElement("span"); s.textContent = v + " GNOT"; b.appendChild(s); }
       bars.appendChild(b);
     });
-  }
+  });
 
   var range = $("month");
   if (!range) return;

@@ -41,6 +41,83 @@
     <p class="by">Built by <a href="https://github.com/zmzubraj">zmzubraj</a> for the Gnome Tavern hackathon, November 2026.</p>
   </div>
 
+  <!-- avoid-ai-design-ignore: L2 (the owner asked for the USPs as highlighted cards; each card carries its own drawing and real data) -->
+  <section class="usps" id="usps" aria-labelledby="usp-title">
+    <h2 id="usp-title" class="sr">What Driplock does that other vesting tools don't</h2>
+    <div class="usp-grid">
+      <article class="usp usp-proof">
+        <p class="usp-kicker">The main one</p>
+        <h3>Anyone can check the lock</h3>
+        <p>Every token Driplock holds gets a page served by the chain itself: what is locked, what is still vesting, what a sender could still cancel, and what unlocks in each of the next twelve months. No tracker website, no screenshots to trust.</p>
+        <div class="usp-chart">
+          <div class="usp-chart-head"><span>Proof of Lock: GNOT</span><span>Reconciled with escrow</span></div>
+          <div class="usp-figures">
+            <div><b>21</b><span>GNOT locked</span></div>
+            <div><b>12</b><span>still cancelable</span></div>
+            <div><b>4</b><span>live streams</span></div>
+          </div>
+          <div class="bars light" id="usp-bars" role="img" aria-label="Unlocks per 30-day window for the next twelve months, with a peak of 4.75 GNOT when a cliff ends"></div>
+          <p class="usp-note">Real numbers from a local gno.land node running Driplock.</p>
+        </div>
+      </article>
+
+      <article class="usp usp-cancel">
+        <svg class="usp-art" viewBox="0 0 320 120" role="img" aria-label="A timeline where the cancel window is open until the cliff, then a padlock closes it">
+          <rect x="10" y="52" width="300" height="16" rx="8" class="art-track"/>
+          <rect x="10" y="52" width="96" height="16" rx="8" class="art-window"/>
+          <line x1="106" y1="36" x2="106" y2="84" class="art-cliff"/>
+          <g transform="translate(92 6)">
+            <path d="M6 14 V9 a8 8 0 0 1 16 0 V14" class="art-shackle"/>
+            <rect x="2" y="13" width="24" height="18" rx="4" class="art-lock"/>
+          </g>
+          <text x="12" y="98" class="art-label">cancel window</text>
+          <text x="308" y="98" class="art-label" text-anchor="end">closed for good after the cliff</text>
+        </svg>
+        <h3>Cancel terms are set on day one</h3>
+        <p>The sender chooses a cancel window when the stream is created, for example "only before the cliff". After it closes, the chain refuses to cancel. Unlocked tokens never go back.</p>
+      </article>
+
+      <article class="usp usp-key">
+        <svg class="usp-art" viewBox="0 0 320 120" role="img" aria-label="A lost key fades out, a dotted line marks the quiet period, and a backup key takes over">
+          <g class="art-key lost" transform="translate(14 38)">
+            <circle cx="18" cy="18" r="15"/><circle cx="18" cy="18" r="5" class="hole"/>
+            <path d="M33 18 H78 M62 18 V30 M72 18 V27"/>
+          </g>
+          <line x1="104" y1="56" x2="206" y2="56" class="art-quiet"/>
+          <text x="112" y="44" class="art-label">quiet for 180 days</text>
+          <g class="art-key backup" transform="translate(218 38)">
+            <circle cx="18" cy="18" r="15"/><circle cx="18" cy="18" r="5" class="hole"/>
+            <path d="M33 18 H78 M62 18 V30 M72 18 V27"/>
+          </g>
+          <text x="14" y="104" class="art-label">lost key</text>
+          <text x="306" y="104" class="art-label" text-anchor="end">backup takes over</text>
+        </svg>
+        <h3>A lost key isn't the end</h3>
+        <p>The recipient names a backup address and a quiet period. If they go silent for longer than that, the backup can take the stream over. Nobody can stall it by triggering payouts.</p>
+      </article>
+
+      <article class="usp usp-books">
+        <svg class="usp-art" viewBox="0 0 320 120" role="img" aria-label="One shared pool on the left, four separate vessels with their own levels on the right">
+          <g transform="translate(14 10)">
+            <rect x="0" y="0" width="96" height="84" rx="12" class="art-pool"/>
+            <rect x="0" y="40" width="96" height="44" rx="0" class="art-pool-fill"/>
+            <path d="M8 30 L88 70 M8 70 L88 30" class="art-cross"/>
+          </g>
+          <text x="14" y="112" class="art-label">one shared pool</text>
+          <g transform="translate(150 10)">
+            <rect x="0" y="0" width="30" height="84" rx="8" class="art-vessel"/><rect x="0" y="34" width="30" height="50" rx="0" class="art-fill"/>
+            <rect x="40" y="0" width="30" height="84" rx="8" class="art-vessel"/><rect x="40" y="58" width="30" height="26" rx="0" class="art-fill"/>
+            <rect x="80" y="0" width="30" height="84" rx="8" class="art-vessel"/><rect x="80" y="14" width="30" height="70" rx="0" class="art-fill"/>
+            <rect x="120" y="0" width="30" height="84" rx="8" class="art-vessel"/><rect x="120" y="48" width="30" height="36" rx="0" class="art-fill"/>
+          </g>
+          <text x="150" y="112" class="art-label">Driplock: one per stream</text>
+        </svg>
+        <h3>Every stream keeps its own balance</h3>
+        <p>There is no shared pool with share math, the kind of bookkeeping that was drained in the UNCX incidents (about $86,000, then about $1.5 million). A ledger per token also refuses any payout above what was deposited.</p>
+      </article>
+    </div>
+  </section>
+
   <section class="demo" id="demo" aria-labelledby="demo-title">
     <div class="demo-inner">
       <div class="demo-vessel">
@@ -82,18 +159,9 @@
   </section>
 
   <article class="essay" id="why" aria-labelledby="why-title">
-    <h2 id="why-title">Why another vesting contract?</h2>
+    <h2 id="why-title">Why I built it</h2>
     <p>Most vesting contracts do their job. What they don't do is let an outsider check them. When a project says its team tokens are locked, holders usually learn the unlock dates from a tracker website, and those sites themselves tell you to verify big unlocks against the original documents.</p>
-    <p>On gno.land a contract can render its own web pages from its own state, with no server in between. Driplock uses that. Every token it holds gets a page listing how much is locked, how much is still vesting, how much a sender could still cancel, and what unlocks in each of the next twelve months. The page also checks that the individual streams add up to what the contract actually holds.</p>
-
-    <figure class="chart">
-      <div class="chart-head"><b>Proof of Lock: GNOT</b><span>21 GNOT locked, 12 GNOT still cancelable, 4 streams</span></div>
-      <div class="bars" id="bars" role="img" aria-label="Unlocks per 30-day window over the next twelve months. Most windows release 1 to 2.75 GNOT; the third window releases 4.75 GNOT when a cliff ends."></div>
-      <figcaption>What unlocks in each 30-day window, read from the Proof of Lock page of a local test node running Driplock with four sample streams. The tall bar is a three-month cliff ending.</figcaption>
-    </figure>
-
-    <p>Two other things bothered me. Senders can often revoke vesting whenever they like, so here the cancel window is fixed when the stream is created, and the chain refuses any cancel after it. Tokens that have already unlocked always stay with the recipient.</p>
-    <p>And if you lose the key to a vesting wallet, everything still locked is gone. In Driplock the recipient can name a backup address and a silence period. Withdrawing, or a one-line <code>Ping</code>, shows they're still around. If they go quiet for longer than that, the backup can take the stream over. Withdrawals triggered by someone else don't count, so nobody can keep a lost stream "alive" to block the backup.</p>
+    <p>gno.land made a different answer possible: a contract there can render its own web pages from its own state, with no server in between. So the proof can live in the same place as the lock. The cancel window and the backup key came from the same question: what would I want to know, and be protected from, if someone promised me tokens over a year?</p>
   </article>
 
   <section class="compare" id="compare" aria-labelledby="cmp-title">
