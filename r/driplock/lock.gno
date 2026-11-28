@@ -1,10 +1,12 @@
 package driplock
 
 import (
+	"chain/banker"
 	"strconv"
 	"strings"
 
 	"gno.land/p/nt/markdown/sanitize/v0"
+	"gno.land/r/nt/grc20reg/v0"
 )
 
 const (
@@ -29,6 +31,8 @@ type LockSummary struct {
 	Cancelable int64  // unvested amount whose sender may still cancel
 	NextUnlock int64  // Unix time of the next unlock, 0 if none
 	Reconciled bool   // per-stream sum equals the escrow ledger
+	Held       int64  // what this realm actually holds of the asset (bank or token balance)
+	Backed     bool   // Held covers Locked: the escrow is really there
 }
 
 // GetLockSummary returns the live lock summary for an asset key, and false if
@@ -45,6 +49,11 @@ func GetLockSummary(assetKey string) (LockSummary, bool) {
 // buckets is non-nil it also fills the unlock calendar starting at t.
 func summarize(assetKey string, t int64, buckets []int64) (LockSummary, []*stream) {
 	sum := LockSummary{Asset: assetKey, Locked: escrowedOf(assetKey)}
+	// The ledger alone is not proof: a GRC20 admin can burn this realm's
+	// balance without touching the ledger. Compare against the real balance.
+	// This check is O(1), so it holds even when the stream scan is truncated.
+	sum.Held = heldBalance(assetKey)
+	sum.Backed = sum.Held >= sum.Locked
 	var live []*stream
 	prefix := assetKey + "/"
 	activeByAsset.Iterate(prefix, prefix+"\xff", func(k string, _ any) bool {
@@ -81,6 +90,20 @@ func summarize(assetKey string, t int64, buckets []int64) (LockSummary, []*strea
 	return sum, live
 }
 
+// heldBalance reads what this realm really holds of an asset. The asset key
+// comes from the escrow ledger, so its denom or token key is known-good.
+func heldBalance(assetKey string) int64 {
+	kind, asset := splitAssetKey(assetKey)
+	if kind == kindGRC20 {
+		tok := grc20reg.Get(asset)
+		if tok == nil {
+			return 0
+		}
+		return tok.BalanceOf(self)
+	}
+	return banker.NewReadonlyBanker().GetCoin(self, asset)
+}
+
 func renderLock(assetKey string, t int64) string {
 	if escrowed.Get(assetKey) == nil {
 		return "# Not found\n\nDriplock has never held that asset.\n"
@@ -91,13 +114,18 @@ func renderLock(assetKey string, t int64) string {
 	fmtA := func(v int64) string { return formatAsset(kind, asset, v) }
 
 	var b strings.Builder
-	b.WriteString("# Proof of Lock: " + assetName(kind, asset) + "\n\n")
+	title := assetName(kind, asset)
+	if kind == kindGRC20 {
+		title += " (GRC20 token)" // any realm can pick any symbol, so say what it is
+	}
+	b.WriteString("# Proof of Lock: " + title + "\n\n")
 	b.WriteString("Computed live by the chain from Driplock's escrow, not copied from an off-chain tracker. ")
 	// InlineCode picks a safe fence itself; InlineText would leave visible backslashes inside a code span.
 	b.WriteString("Asset key: " + sanitize.InlineCode(assetKey) + ".\n\n")
 
 	b.WriteString("| Measure | Amount |\n| --- | --- |\n")
 	b.WriteString("| Locked in Driplock now | " + fmtA(sum.Locked) + " |\n")
+	b.WriteString("| Actually held by the contract | " + fmtA(sum.Held) + " |\n")
 	b.WriteString("| Still vesting | " + fmtA(sum.Unvested) + " |\n")
 	b.WriteString("| Vested, waiting to be withdrawn | " + fmtA(sum.Claimable) + " |\n")
 	b.WriteString("| Still cancelable by senders | " + fmtA(sum.Cancelable) + " (" + pct(sum.Cancelable, sum.Unvested) + " of what is vesting) |\n")
@@ -107,10 +135,13 @@ func renderLock(assetKey string, t int64) string {
 	}
 	b.WriteString("\n")
 	switch {
+	case !sum.Backed:
+		b.WriteString("**Warning:** the contract holds " + fmtA(sum.Held) + ", less than the " + fmtA(sum.Locked) + " it owes to streams.\n\n")
 	case sum.Truncated:
-		b.WriteString("Only the first " + strconv.Itoa(lockScanCap) + " live streams are counted on this page.\n\n")
+		b.WriteString("**Backed:** the contract holds at least what it owes. Only the first " + strconv.Itoa(lockScanCap) +
+			" live streams are itemized on this page, so the per-stream check is skipped.\n\n")
 	case sum.Reconciled:
-		b.WriteString("**Reconciled:** the sum over every live stream equals the escrow ledger.\n\n")
+		b.WriteString("**Reconciled:** the sum over every live stream equals the escrow ledger, and the contract's real balance covers it.\n\n")
 	default:
 		b.WriteString("**Warning:** the per-stream sum does not match the escrow ledger.\n\n")
 	}

@@ -2,7 +2,11 @@
 # Builds a deployable copy of Driplock under your own address namespace and
 # prints the gnokey commands to publish it on the Onyx testnet (onyx-1).
 #
-# Usage: scripts/prepare-deploy.sh <your g1 address> [--with-tests]
+# Usage: [REALM=driplock/v2] scripts/prepare-deploy.sh <your g1 address> [--with-tests]
+#
+# REALM is the realm path under your namespace (default: driplock). Deployed
+# gno packages cannot change, so a fixed version goes to a new path, for
+# example REALM=driplock/v2; the schedule package and dripdemo are reused.
 #
 # It never signs or sends anything. You run the printed commands yourself;
 # gnokey asks for your key password.
@@ -10,6 +14,11 @@ set -euo pipefail
 
 ADDR="${1:-}"
 WITH_TESTS="${2:-}"
+REALM="${REALM:-driplock}"
+if [[ ! "$REALM" =~ ^driplock(/v[0-9]+)?$ ]]; then
+  echo "REALM must be driplock or driplock/vN (got: '$REALM')" >&2
+  exit 1
+fi
 if [[ ! "$ADDR" =~ ^g1[02-9ac-hj-np-z]{38}$ ]]; then
   echo "usage: $0 <g1 address> [--with-tests]  (got: '${ADDR}')" >&2
   exit 1
@@ -34,6 +43,12 @@ done
 find "$OUT" -type f \( -name '*.gno' -o -name 'gnomod.toml' \) -print0 |
   xargs -0 sed -i.bak -e "s#/p/zdev/#/p/$ADDR/#g" -e "s#/r/zdev/#/r/$ADDR/#g"
 find "$OUT" -name '*.bak' -delete
+# Point the realm's own module path (and the tests that print its links) at REALM.
+if [[ "$REALM" != "driplock" ]]; then
+  find "$OUT/r/driplock" -type f \( -name '*.gno' -o -name 'gnomod.toml' \) -print0 |
+    xargs -0 sed -i.bak -E "s#/r/$ADDR/driplock([\":])#/r/$ADDR/$REALM\\1#g"
+  find "$OUT" -name '*.bak' -delete
+fi
 if grep -rq "zdev" "$OUT"; then echo "placeholder namespace left in build:" >&2; grep -rn zdev "$OUT" >&2; exit 1; fi
 
 echo "== Checking the build"
@@ -56,10 +71,10 @@ after it type-checks them; a package that imports one not yet enabled fails).
      -gas-fee 1000000ugnot -gas-wanted 100000000 -max-deposit 20000000ugnot \\
      -broadcast -chainid onyx-1 -remote $REMOTE <your-key-name>
 
-3) gnokey maketx addpkg -pkgdir "$OUT/r/driplock" -pkgpath gno.land/r/$ADDR/driplock \\
-     -gas-fee 1000000ugnot -gas-wanted 100000000 -max-deposit 50000000ugnot \\
+3) gnokey maketx addpkg -pkgdir "$OUT/r/driplock" -pkgpath gno.land/r/$ADDR/$REALM \\
+     -gas-fee 2000000ugnot -gas-wanted 150000000 -max-deposit 50000000ugnot \\
      -broadcast -chainid onyx-1 -remote $REMOTE <your-key-name>
 
 Check a package is live:
-  curl -s -o /dev/null -w '%{http_code}\n' https://onyx.testnets.gno.land/r/$ADDR/driplock
+  curl -s -o /dev/null -w '%{http_code}\n' https://onyx.testnets.gno.land/r/$ADDR/$REALM
 CMDS

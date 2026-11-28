@@ -179,7 +179,7 @@ func TestTransferRecipient(cur realm, t *testing.T) {
 	uassert.Equal(t, dave, info.Recipient)
 
 	// Indexes moved too.
-	uassert.True(t, strings.Contains(Render("addr/"+dave.String()), "driplock:1)"))
+	uassert.True(t, strings.Contains(Render("addr/"+dave.String()), link("1")+")"))
 	uassert.True(t, strings.Contains(Render("addr/"+bob.String()), "## Receiving\n\nNone."))
 
 	// The sender's cancel now refunds against the new owner's schedule.

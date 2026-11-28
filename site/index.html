@@ -46,7 +46,7 @@
     <p class="hero-sub reveal">Lock GNOT or a GRC20 token for someone. It unlocks month by month, and the chain itself shows what is still locked and who could still cancel it.</p>
     <div class="hero-actions reveal">
       <a class="btn solid" href="#demo">Try the demo</a>
-      <a class="btn ghost" href="https://onyx.testnets.gno.land/r/g1c4p2qq2l7ndqrn7weez9z53x99mtv5rcxhm7s8/driplock">Open it on the testnet</a>
+      <a class="btn ghost" href="https://onyx.testnets.gno.land/r/g1c4p2qq2l7ndqrn7weez9z53x99mtv5rcxhm7s8/driplock/v2">Open it on the testnet</a>
     </div>
 
     <a class="scroll-cue reveal" href="#usps">See what's different</a>
@@ -198,9 +198,10 @@
   <section class="run" id="run" aria-labelledby="run-title">
     <div class="run-text">
       <h2 id="run-title">Run it yourself</h2>
-      <p>It's live on the gno.land Onyx testnet: the <a href="https://onyx.testnets.gno.land/r/g1c4p2qq2l7ndqrn7weez9z53x99mtv5rcxhm7s8/driplock">Driplock realm</a>, the free <a href="https://onyx.testnets.gno.land/r/g1c4p2qq2l7ndqrn7weez9z53x99mtv5rcxhm7s8/dripdemo">DRIP demo token</a> and the <a href="https://onyx.testnets.gno.land/p/g1c4p2qq2l7ndqrn7weez9z53x99mtv5rcxhm7s8/driplock/schedule">schedule package</a>. You can call every function from those pages with an Adena wallet, or run the whole thing locally with <code>gnodev</code>.</p>
+      <p>It's live on the gno.land Onyx testnet: the <a href="https://onyx.testnets.gno.land/r/g1c4p2qq2l7ndqrn7weez9z53x99mtv5rcxhm7s8/driplock/v2">Driplock realm</a>, the free <a href="https://onyx.testnets.gno.land/r/g1c4p2qq2l7ndqrn7weez9z53x99mtv5rcxhm7s8/dripdemo">DRIP demo token</a> and the <a href="https://onyx.testnets.gno.land/p/g1c4p2qq2l7ndqrn7weez9z53x99mtv5rcxhm7s8/driplock/schedule">schedule package</a>. You can call every function from those pages with an Adena wallet, or run the whole thing locally with <code>gnodev</code>.</p>
       <p>Streams can unlock every second or in monthly or quarterly steps. One call can set up a whole team (up to fifty people from a single payment). The schedule math is a separate package, so other contracts can import it.</p>
-      <p>There are 57 tests: 11 for the schedule math and 46 for the contract. To check that they actually catch mistakes, I broke the code on purpose nine times, one bug at a time. Every time, at least one test failed.</p>
+      <p>There are 64 tests: 11 for the schedule math and 53 for the contract. To check that they actually catch mistakes, I broke the code on purpose nine times, one bug at a time. Every time, at least one test failed.</p>
+      <p>Before submitting, I reviewed the contract the way an attacker would and wrote down what I found in <a href="https://github.com/zmzubraj/driplock/blob/main/AUDIT.md">AUDIT.md</a>. Nothing let anyone take money they weren't owed, but the proof page trusted its own ledger instead of the real balance, and a stranger could crowd out someone's statement. Those are fixed in the version now on the testnet. It's a self-review, not an independent audit.</p>
     </div>
     <pre class="code"><code>git clone https://github.com/zmzubraj/driplock
 cd driplock
@@ -217,7 +218,7 @@ gnodev local \
       <li>A proper wallet interface. Today you call it with <code>gnokey</code> or gnoweb's built-in forms.</li>
       <li>Releases tied to milestones instead of dates.</li>
     </ul>
-    <p>One known limit: a GRC20 token's own admin controls that token's ledger, so only stream tokens you trust.</p>
+    <p>One known limit: a GRC20 token's own admin controls that token's ledger, so only stream tokens you trust. If an admin ever drains Driplock's balance, the Proof of Lock page says so instead of showing "Reconciled".</p>
   </section>
 </main>
 

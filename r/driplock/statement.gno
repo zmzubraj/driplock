@@ -9,9 +9,10 @@ import (
 )
 
 const (
-	historyCap        = 64  // events kept per stream (the newest)
-	statementStreams  = 100 // streams read per statement page
-	statementRowLimit = 500 // rows printed per statement page
+	historyCap        = 64   // events kept per stream: the creation entry plus the newest
+	statementStreams  = 100  // streams read per statement page (the most recent)
+	statementRowLimit = 500  // rows printed per statement page
+	statementRowCap   = 2000 // rows collected before sorting, to bound the page's cost
 )
 
 // entry is one money movement or ownership change of a stream.
@@ -31,10 +32,19 @@ func involve(addr address, key string) {
 	everByAddr.Set(addr.String()+"/"+key, struct{}{})
 }
 
+// logEvent appends to a stream's history. When the cap is reached it drops
+// the oldest event after the first: the creation entry is never dropped, so
+// nobody (for example a stranger calling WithdrawFor many times) can erase
+// the record of what was locked. Exact totals always come from the stream's
+// state, which the statement prints next to the rows.
 func logEvent(s *stream, event string, amount int64, from, to address) {
 	s.history = append(s.history, entry{t: now(), event: event, amount: amount, from: from, to: to})
 	if len(s.history) > historyCap {
-		s.history = s.history[len(s.history)-historyCap:]
+		kept := make([]entry, 0, historyCap)
+		kept = append(kept, s.history[0])
+		kept = append(kept, s.history[len(s.history)-historyCap+1:]...)
+		s.trimmed += len(s.history) - len(kept)
+		s.history = kept
 	}
 }
 
@@ -59,9 +69,17 @@ func renderStatement(raw string) string {
 	prefix := addr.String() + "/"
 	n := 0
 	truncated := false
-	everByAddr.Iterate(prefix, prefix+"\xff", func(k string, _ any) bool {
+	rowsCapped := false
+	var trimmedStreams []*stream
+	// Newest streams first, so unsolicited old or new dust cannot hide an
+	// address's latest real activity behind the stream limit.
+	everByAddr.ReverseIterate(prefix, prefix+"\xff", func(k string, _ any) bool {
 		if n >= statementStreams {
 			truncated = true
+			return true
+		}
+		if len(rows) >= statementRowCap {
+			rowsCapped = true
 			return true
 		}
 		n++
@@ -70,6 +88,9 @@ func renderStatement(raw string) string {
 			return false
 		}
 		s := v.(*stream)
+		if s.trimmed > 0 {
+			trimmedStreams = append(trimmedStreams, s)
+		}
 		for _, e := range s.history {
 			sign := ""
 			switch {
@@ -113,7 +134,15 @@ func renderStatement(raw string) string {
 			strconv.FormatInt(r.e.amount, 10) + "," + csvSafe(r.s.assetKey()) + "\n")
 	}
 	if truncated {
-		b.WriteString("\nOnly the first " + strconv.Itoa(statementStreams) + " streams are included.\n")
+		b.WriteString("\nOnly the " + strconv.Itoa(statementStreams) + " most recent streams are included.\n")
+	}
+	if rowsCapped {
+		b.WriteString("\nOnly the first " + strconv.Itoa(statementRowCap) + " events read are included.\n")
+	}
+	for _, s := range trimmedStreams {
+		b.WriteString("\nStream [#" + s.idString() + "](" + link(s.idString()) + ") has " + strconv.Itoa(s.trimmed) +
+			" older events not listed. Its exact totals: withdrawn " + formatAmount(s, s.withdrawn) +
+			", refunded " + formatAmount(s, s.refunded) + ".\n")
 	}
 	b.WriteString("\n## CSV\n\nCopy into a spreadsheet. Amounts are in base units (ugnot, or the token's smallest unit).\n\n")
 	b.WriteString("```csv\n" + csv.String() + "```\n")

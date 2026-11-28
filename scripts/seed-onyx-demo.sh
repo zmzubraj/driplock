@@ -2,7 +2,7 @@
 # Opens a few demo streams on the Onyx testnet so the live pages show real
 # data. Every stream goes to RECIPIENT (by default the sender itself).
 #
-# Usage: scripts/seed-onyx-demo.sh <your g1 address> <gnokey key name> [recipient] [first step]
+# Usage: [REALM=driplock/v2] scripts/seed-onyx-demo.sh <your g1 address> <gnokey key name> [recipient] [first step]
 #
 # Pass a first step (1 to 6) to resume after a failure without repeating
 # the steps that already went through.
@@ -18,7 +18,8 @@ if [[ ! "$ADDR" =~ ^g1[02-9ac-hj-np-z]{38}$ || -z "$KEY" || ! "$RECIPIENT" =~ ^g
 fi
 
 REMOTE="https://rpc.onyx.testnets.gno.land:443"
-DL="gno.land/r/$ADDR/driplock"
+REALM="${REALM:-driplock}"
+DL="gno.land/r/$ADDR/$REALM"
 DEMO="gno.land/r/$ADDR/dripdemo"
 TOKEN="$DEMO.DRIP"
 DAY=86400; MONTH=$((30 * DAY))
@@ -37,9 +38,9 @@ call() { # pkg func send args...
     -broadcast -chainid onyx-1 -remote "$REMOTE" "$KEY"
 }
 
-REALM=$(gnokey query vm/qeval -data "$DL.Address()" -remote "$REMOTE" | grep -o 'g1[0-9a-z]\{38\}' | head -1)
-[[ -n "$REALM" ]] || { echo "Could not read the Driplock realm address." >&2; exit 1; }
-echo "Driplock realm address: $REALM"
+REALM_ADDR=$(gnokey query vm/qeval -data "$DL.Address()" -remote "$REMOTE" | grep -o 'g1[0-9a-z]\{38\}' | head -1)
+[[ -n "$REALM_ADDR" ]] || { echo "Could not read the Driplock realm address." >&2; exit 1; }
+echo "Driplock realm address: $REALM_ADDR"
 echo "Recipient for every stream: $RECIPIENT"
 
 # 1. Team grant: 12 GNOT, monthly steps over 12 months, 3-month cliff, cancelable only before the cliff.
@@ -50,11 +51,11 @@ call "$DL" CreateCoinStreamFor 6000000ugnot "$RECIPIENT" 0 $((6 * MONTH)) 0 0
 call "$DL" CreateCoinStreamFor 2000000ugnot "$RECIPIENT" 0 600 0 600
 # 4 to 6. DRIP: faucet, approve the realm, then a 90-day monthly stream of 400 DRIP.
 call "$DEMO" Faucet ""
-call "$DEMO" Approve "" "$REALM" 400000000
+call "$DEMO" Approve "" "$REALM_ADDR" 400000000
 call "$DL" CreateGRC20StreamFor "" "$RECIPIENT" "$TOKEN" 400000000 0 $((3 * MONTH)) "$MONTH" 0
 
 echo
 echo "Done. Open:"
-echo "  https://onyx.testnets.gno.land/r/$ADDR/driplock"
-echo "  https://onyx.testnets.gno.land/r/$ADDR/driplock:lock/coin:ugnot"
-echo "  https://onyx.testnets.gno.land/r/$ADDR/driplock:statement/$RECIPIENT"
+echo "  https://onyx.testnets.gno.land/r/$ADDR/$REALM"
+echo "  https://onyx.testnets.gno.land/r/$ADDR/$REALM:lock/coin:ugnot"
+echo "  https://onyx.testnets.gno.land/r/$ADDR/$REALM:statement/$RECIPIENT"

@@ -2,7 +2,7 @@
 # Publishes Driplock's three packages to the Onyx testnet, in order, waiting
 # for each one to be enabled before sending the next.
 #
-# Usage: scripts/deploy-onyx.sh <your g1 address> <gnokey key name>
+# Usage: [REALM=driplock/v2] scripts/deploy-onyx.sh <your g1 address> <gnokey key name>
 #
 # Run scripts/prepare-deploy.sh <address> first. gnokey asks for the key's
 # password once per package; this script never reads or stores it.
@@ -10,6 +10,7 @@ set -euo pipefail
 
 ADDR="${1:-}"
 KEY="${2:-}"
+REALM="${REALM:-driplock}"
 if [[ ! "$ADDR" =~ ^g1[02-9ac-hj-np-z]{38}$ || -z "$KEY" ]]; then
   echo "usage: $0 <g1 address> <gnokey key name>" >&2
   exit 1
@@ -34,7 +35,7 @@ wait_live() {
 }
 
 publish() {
-  local dir="$1" path="$2" deposit="$3"
+  local dir="$1" path="$2" deposit="$3" gas="${4:-100000000}"
   if [[ "$(curl -s -o /dev/null -w '%{http_code}' "$WEB/$path")" == "200" ]]; then
     echo "== $path is already live, skipping"
     return 0
@@ -42,17 +43,17 @@ publish() {
   echo
   echo "== Publishing $path (gnokey will ask for your password)"
   gnokey maketx addpkg -pkgdir "$BUILD/$dir" -pkgpath "gno.land/$path" \
-    -gas-fee 1000000ugnot -gas-wanted 100000000 -max-deposit "$deposit" \
+    -gas-fee 2000000ugnot -gas-wanted "$gas" -max-deposit "$deposit" \
     -broadcast -chainid onyx-1 -remote "$REMOTE" "$KEY"
   wait_live "$path"
 }
 
 publish p/schedule "p/$ADDR/driplock/schedule" 20000000ugnot
 publish r/dripdemo "r/$ADDR/dripdemo" 20000000ugnot
-publish r/driplock "r/$ADDR/driplock" 50000000ugnot
+publish r/driplock "r/$ADDR/$REALM" 50000000ugnot 150000000 # needed about 120M at v2
 
 echo
 echo "All three packages are live:"
-echo "  $WEB/r/$ADDR/driplock"
+echo "  $WEB/r/$ADDR/$REALM"
 echo "  $WEB/r/$ADDR/dripdemo"
 echo "  $WEB/p/$ADDR/driplock/schedule"

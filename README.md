@@ -15,12 +15,12 @@
 Website: https://driplock.vercel.app
 
 **Live on the Onyx testnet (onyx-1):**
-- Realm: https://onyx.testnets.gno.land/r/g1c4p2qq2l7ndqrn7weez9z53x99mtv5rcxhm7s8/driplock
+- Realm (v2, with the security review fixes): https://onyx.testnets.gno.land/r/g1c4p2qq2l7ndqrn7weez9z53x99mtv5rcxhm7s8/driplock/v2
 - Demo token (DRIP): https://onyx.testnets.gno.land/r/g1c4p2qq2l7ndqrn7weez9z53x99mtv5rcxhm7s8/dripdemo
 - Schedule package: https://onyx.testnets.gno.land/p/g1c4p2qq2l7ndqrn7weez9z53x99mtv5rcxhm7s8/driplock/schedule
-- Realm address (approve this for GRC20 streams): `g1npjuw4a3ugnemqj5mkj9djxgdwuvz72g9gvmzc`
-- Demo data: four streams opened with `scripts/seed-onyx-demo.sh` (12 GNOT team grant with monthly steps and a 3-month cliff, 6 GNOT continuous advisor stream, a 10-minute 2 GNOT stream, and a 400 DRIP stream). See the [GNOT Proof of Lock page](https://onyx.testnets.gno.land/r/g1c4p2qq2l7ndqrn7weez9z53x99mtv5rcxhm7s8/driplock:lock/coin:ugnot).
-- Known cosmetic issue on the deployed version: the asset key line on a GRC20 Proof of Lock page shows backslashes (`gno\.land`). It is fixed in this repo; packages on gno.land are immutable, so the fix ships with the next deployment.
+- Realm address (approve this for GRC20 streams): `g1rv9dkcs7r8x5hpq2jmv8cuq7pmyjeegn5dap27`
+- Demo data: four streams opened with `scripts/seed-onyx-demo.sh` (12 GNOT team grant with monthly steps and a 3-month cliff, 6 GNOT continuous advisor stream, a 10-minute 2 GNOT stream, and a 400 DRIP stream). See the [GNOT Proof of Lock page](https://onyx.testnets.gno.land/r/g1c4p2qq2l7ndqrn7weez9z53x99mtv5rcxhm7s8/driplock/v2:lock/coin:ugnot).
+- The first version (v1) stays live at https://onyx.testnets.gno.land/r/g1c4p2qq2l7ndqrn7weez9z53x99mtv5rcxhm7s8/driplock. The demo video was recorded on it. Gno packages cannot change after deployment, so the fixes from [AUDIT.md](AUDIT.md) went live as v2 at a new path.
 
 Everything is a gnoweb page rendered from chain state. There is no separate frontend, indexer or server to trust.
 
@@ -92,7 +92,7 @@ gnokey maketx call -pkgpath gno.land/r/<ns>/driplock -func SetBackup \
    ```bash
    scripts/prepare-deploy.sh <your g1 address>
    ```
-3. Run `scripts/deploy-onyx.sh <your g1 address> <your gnokey key name>`. It publishes the three packages in order and waits for each to be enabled. You can also run the three printed `gnokey maketx addpkg` commands yourself, in order. After each one, wait until its page opens on `https://onyx.testnets.gno.land/...`: the gpao oracle enables new packages after it type-checks them.
+3. Run `scripts/deploy-onyx.sh <your g1 address> <your gnokey key name>`. To publish a new version of the realm at a new path, set `REALM`, for example `REALM=driplock/v2` for this script, `prepare-deploy.sh` and `seed-onyx-demo.sh`. It publishes the three packages in order and waits for each to be enabled. You can also run the three printed `gnokey maketx addpkg` commands yourself, in order. After each one, wait until its page opens on `https://onyx.testnets.gno.land/...`: the gpao oracle enables new packages after it type-checks them.
 
 Onyx storage costs 100 ugnot per byte (`vm:p:storage_price`). The source-only build is about 53 KB of Gno source, and each command caps its deposit with `-max-deposit`.
 
@@ -104,7 +104,8 @@ The realm follows the gno.land contract review checklist (`docs/resources/gno-ai
 - **Coin payments** use the required pair: `IsUserCall()` plus `OriginSend()`. Wrapper realms and `maketx run` scripts are rejected, and tests cover both.
 - **GRC20 pulls** take an exact amount through the canonical `grc20reg` token and a `RealmTeller` bound to this realm.
 - **Checks, effects, then transfers.** Batches validate every entry before writing any stream.
-- **Escrow ledger** per asset: no payout can exceed deposits. Proof of Lock shows whether it reconciles.
+- **Escrow ledger** per asset: no payout can exceed deposits. Proof of Lock compares the ledger with the per-stream sum and with the contract's real balance, so a drained escrow shows a warning.
+- **No trapped coins:** functions that take no payment refuse `-send`, so a mistaken deposit reverts instead of being stuck.
 - **Recovery cannot be griefed:** only the recipient's own actions reset the inactivity timer. A transfer clears the old owner's backup.
 - **No exported mutable state:** read APIs return value copies, and every tree stays unexported.
 - **Render** validates every path segment, never echoes raw input, escapes user values, caps every loop, and makes CSV cells inert in spreadsheets.
@@ -113,8 +114,10 @@ The only `chain/runtime/unsafe` import is for `OriginSend()`, paired with `IsUse
 
 **Known limits:**
 - A GRC20 token's own admin realm controls its ledger, so only stream tokens you trust.
-- Each stream keeps its newest 64 history events.
-- Proof of Lock pages count at most 500 live streams per asset and say so when they hit the cap.
+- Each stream keeps its creation entry plus its newest 63 history events. Statements list how many older events were trimmed, with the stream's exact totals.
+- Proof of Lock pages itemize at most 500 live streams per asset and say so when they hit the cap. The balance check still runs.
+
+See [AUDIT.md](AUDIT.md) for the 2026-11-28 security review: 8 findings, 7 fixed, 1 mitigated.
 
 ## Scalability
 
@@ -140,7 +143,7 @@ The default per-query budget of a gno.land node is 3,000,000,000 gas (`DefaultQu
 gno test ./... -v
 ```
 
-- **57 tests in total:** 11 in `p/schedule` and 46 in `r/driplock`.
+- **64 tests in total:** 11 in `p/schedule` and 53 in `r/driplock`, including 7 regression tests from the security review.
 - **`p/schedule`** checks stepped and continuous math exhaustively against a brute-force reference, plus extreme totals.
 - **`r/driplock`** covers:
   - creating, withdrawing and canceling streams, and the cancel window;

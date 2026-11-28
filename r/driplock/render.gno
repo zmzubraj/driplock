@@ -143,6 +143,9 @@ func writeIndex(b *strings.Builder, title string, idx *avl.Tree, addr address, t
 // idsAfter returns up to limit streams from an address index whose id is
 // greater than after.
 func idsAfter(idx *avl.Tree, prefix string, after uint64, limit int) []*stream {
+	if after == ^uint64(0) {
+		return nil // nothing comes after the largest id (after+1 would wrap to 0)
+	}
 	start := prefix
 	if after > 0 {
 		start = prefix + seqid.ID(after+1).Binary()

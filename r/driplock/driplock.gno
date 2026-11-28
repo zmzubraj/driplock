@@ -71,7 +71,8 @@ type stream struct {
 	inactivity int64
 	lastActive int64
 
-	history []entry // capped at historyCap, newest kept; see statement.gno
+	history []entry // capped at historyCap: the creation entry plus the newest; see statement.gno
+	trimmed int     // events dropped from the middle of history by the cap
 }
 
 var (
@@ -178,6 +179,7 @@ func CreateCoinStreamBatch(cur realm, recipients, amounts string, cliffSeconds, 
 // a user or another realm (for example a DAO treasury).
 // The schedule arguments work as in CreateCoinStream.
 func CreateGRC20Stream(cur realm, recipient address, tokenKey string, amount, start, cliff, end, period, cancelUntil int64) uint64 {
+	refuseSend(0, cur)
 	return createGRC20(0, cur, recipient, tokenKey, amount, terms{start, cliff, end, period, cancelUntil})
 }
 
@@ -199,12 +201,14 @@ func createGRC20(_ int, rlm realm, recipient address, tokenKey string, amount in
 // CreateGRC20StreamFor is CreateGRC20Stream with relative times, like
 // CreateCoinStreamFor.
 func CreateGRC20StreamFor(cur realm, recipient address, tokenKey string, amount, cliffSeconds, durationSeconds, periodSeconds, cancelSeconds int64) uint64 {
+	refuseSend(0, cur)
 	return createGRC20(0, cur, recipient, tokenKey, amount, relativeTerms(cliffSeconds, durationSeconds, periodSeconds, cancelSeconds))
 }
 
 // Withdraw pays the recipient everything vested and not yet withdrawn.
 // Only the recipient can call it.
 func Withdraw(cur realm, id uint64) int64 {
+	refuseSend(0, cur)
 	s := mustGet(id)
 	if cur.Previous().Address() != s.recipient {
 		panic("driplock: only the recipient can withdraw")
@@ -217,6 +221,7 @@ func Withdraw(cur realm, id uint64) int64 {
 // stream. The money always goes to the stream's recipient, never to the
 // caller, so this only saves the recipient a transaction.
 func WithdrawFor(cur realm, id uint64) int64 {
+	refuseSend(0, cur)
 	return withdraw(0, cur, mustGet(id))
 }
 
@@ -224,6 +229,7 @@ func WithdrawFor(cur realm, id uint64) int64 {
 // key rotation. Only the current recipient can call it. What was already
 // withdrawn stays withdrawn; everything still owed now goes to newRecipient.
 func TransferRecipient(cur realm, id uint64, newRecipient address) {
+	refuseSend(0, cur)
 	s := mustGet(id)
 	if cur.Previous().Address() != s.recipient {
 		panic("driplock: only the recipient can transfer the stream")
@@ -242,6 +248,7 @@ const (
 // years). Only the recipient can call it. Pass an empty backup to remove it.
 // Calling it, Ping and the recipient's own Withdraw all count as activity.
 func SetBackup(cur realm, id uint64, backup address, inactivitySeconds int64) {
+	refuseSend(0, cur)
 	s := mustGet(id)
 	if cur.Previous().Address() != s.recipient {
 		panic("driplock: only the recipient can set a backup")
@@ -270,6 +277,7 @@ func SetBackup(cur realm, id uint64, backup address, inactivitySeconds int64) {
 // Ping proves the recipient still controls their key, resetting the
 // inactivity timer without moving any funds.
 func Ping(cur realm, id uint64) {
+	refuseSend(0, cur)
 	s := mustGet(id)
 	if cur.Previous().Address() != s.recipient {
 		panic("driplock: only the recipient can ping")
@@ -281,6 +289,7 @@ func Ping(cur realm, id uint64) {
 // recipient has been inactive for the agreed time. Everything still owed
 // then goes to the backup.
 func ClaimAsBackup(cur realm, id uint64) {
+	refuseSend(0, cur)
 	s := mustGet(id)
 	caller := cur.Previous().Address()
 	if s.backup == "" || caller != s.backup {
@@ -339,6 +348,7 @@ func withdraw(_ int, rlm realm, s *stream) int64 {
 // returns to the sender now; the vested part stays withdrawable by the
 // recipient and can never be taken back.
 func Cancel(cur realm, id uint64) int64 {
+	refuseSend(0, cur)
 	s := mustGet(id)
 	caller := cur.Previous().Address()
 	if caller != s.sender {
@@ -459,6 +469,16 @@ func receiveCoin(_ int, rlm realm) chain.Coin {
 	return sent[0]
 }
 
+// refuseSend rejects coins attached to a call that does not take payment.
+// Without it they would land in this realm with no stream to account for
+// them and no way back. The panic reverts the transaction, so the caller
+// keeps the coins. Only a direct user call delivers -send to this realm.
+func refuseSend(_ int, rlm realm) {
+	if rlm.Previous().IsUserCall() && len(unsafe.OriginSend()) > 0 {
+		panic("driplock: this function does not take coins; do not use -send")
+	}
+}
+
 // terms are a stream's timing rules, as given by the caller.
 type terms struct {
 	start, cliff, end, period, cancelUntil int64
@@ -496,6 +516,9 @@ func splitList(s string) []string {
 }
 
 func store(sender, recipient address, kind assetKind, asset string, sched schedule.Schedule, cancelUntil int64) uint64 {
+	if escrowedOf(kind.String()+":"+asset) > maxInt64-sched.Total() {
+		panic("driplock: escrow for this asset would overflow")
+	}
 	id := counter.Next()
 	s := &stream{
 		id:          id,

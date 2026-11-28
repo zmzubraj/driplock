@@ -53,7 +53,10 @@ func TestHistoryIsCapped(cur realm, t *testing.T) {
 	}
 	s := mustGet(id)
 	uassert.Equal(t, historyCap, len(s.history))
-	uassert.Equal(t, "withdraw", s.history[0].event) // the oldest ("created") rolled off
+	uassert.Equal(t, "created", s.history[0].event) // the creation entry is pinned
+	uassert.Equal(t, "withdraw", s.history[1].event)
+	uassert.Equal(t, 11, s.trimmed) // 1 created + 74 withdrawals - 64 kept
+	uassert.True(t, strings.Contains(Render("statement/"+bob.String()), "older events not listed"))
 }
 
 func TestCSVSafe(t *testing.T) {
