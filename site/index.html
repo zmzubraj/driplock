@@ -46,11 +46,11 @@
     <p class="hero-sub reveal">Lock GNOT or a GRC20 token for someone. It unlocks month by month, and the chain itself shows what is still locked and who could still cancel it.</p>
     <div class="hero-actions reveal">
       <a class="btn solid" href="#demo">Try the demo</a>
-      <a class="btn ghost" href="https://github.com/zmzubraj/driplock">Read the code</a>
+      <a class="btn ghost" href="https://onyx.testnets.gno.land/r/g1c4p2qq2l7ndqrn7weez9z53x99mtv5rcxhm7s8/driplock">Open it on the testnet</a>
     </div>
 
     <a class="scroll-cue reveal" href="#usps">See what's different</a>
-    <p class="by reveal">Built by <a href="https://github.com/zmzubraj">zmzubraj</a> for the Gnome Tavern hackathon, November 2026.</p>
+    <p class="by reveal">Built by <a href="https://github.com/zmzubraj">zmzubraj</a> for the Gnome Tavern hackathon, November 2026. <a href="https://github.com/zmzubraj/driplock">Source on GitHub</a>.</p>
   </div>
 </div>
 
@@ -198,7 +198,7 @@
   <section class="run" id="run" aria-labelledby="run-title">
     <div class="run-text">
       <h2 id="run-title">Run it yourself</h2>
-      <p>It isn't on the gno.land testnet yet. That's the next step. Until then it runs on a local node with <code>gnodev</code>, and every page above works there.</p>
+      <p>It's live on the gno.land Onyx testnet: the <a href="https://onyx.testnets.gno.land/r/g1c4p2qq2l7ndqrn7weez9z53x99mtv5rcxhm7s8/driplock">Driplock realm</a>, the free <a href="https://onyx.testnets.gno.land/r/g1c4p2qq2l7ndqrn7weez9z53x99mtv5rcxhm7s8/dripdemo">DRIP demo token</a> and the <a href="https://onyx.testnets.gno.land/p/g1c4p2qq2l7ndqrn7weez9z53x99mtv5rcxhm7s8/driplock/schedule">schedule package</a>. You can call every function from those pages with an Adena wallet, or run the whole thing locally with <code>gnodev</code>.</p>
       <p>Streams can unlock every second or in monthly or quarterly steps. One call can set up a whole team (up to fifty people from a single payment). The schedule math is a separate package, so other contracts can import it.</p>
       <p>There are 57 tests: 11 for the schedule math and 46 for the contract. To check that they actually catch mistakes, I broke the code on purpose nine times, one bug at a time. Every time, at least one test failed.</p>
     </div>
@@ -214,7 +214,6 @@ gnodev local \
   <section class="todo" aria-labelledby="todo-title">
     <h2 id="todo-title">Not done yet</h2>
     <ul>
-      <li>Deploying to the Onyx testnet.</li>
       <li>A proper wallet interface. Today you call it with <code>gnokey</code> or gnoweb's built-in forms.</li>
       <li>Releases tied to milestones instead of dates.</li>
     </ul>

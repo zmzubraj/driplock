@@ -14,6 +14,12 @@
 
 Website: https://driplock.vercel.app
 
+**Live on the Onyx testnet (onyx-1):**
+- Realm: https://onyx.testnets.gno.land/r/g1c4p2qq2l7ndqrn7weez9z53x99mtv5rcxhm7s8/driplock
+- Demo token (DRIP): https://onyx.testnets.gno.land/r/g1c4p2qq2l7ndqrn7weez9z53x99mtv5rcxhm7s8/dripdemo
+- Schedule package: https://onyx.testnets.gno.land/p/g1c4p2qq2l7ndqrn7weez9z53x99mtv5rcxhm7s8/driplock/schedule
+- Realm address (approve this for GRC20 streams): `g1npjuw4a3ugnemqj5mkj9djxgdwuvz72g9gvmzc`
+
 Everything is a gnoweb page rendered from chain state. There is no separate frontend, indexer or server to trust.
 
 ## What is in this repo
@@ -84,7 +90,7 @@ gnokey maketx call -pkgpath gno.land/r/<ns>/driplock -func SetBackup \
    ```bash
    scripts/prepare-deploy.sh <your g1 address>
    ```
-3. Run the three printed `gnokey maketx addpkg` commands in order. After each one, wait until its page opens on `https://onyx.testnets.gno.land/...`: the gpao oracle enables new packages after it type-checks them.
+3. Run `scripts/deploy-onyx.sh <your g1 address> <your gnokey key name>`. It publishes the three packages in order and waits for each to be enabled. You can also run the three printed `gnokey maketx addpkg` commands yourself, in order. After each one, wait until its page opens on `https://onyx.testnets.gno.land/...`: the gpao oracle enables new packages after it type-checks them.
 
 Onyx storage costs 100 ugnot per byte (`vm:p:storage_price`). The source-only build is about 53 KB of Gno source, and each command caps its deposit with `-max-deposit`.
 
