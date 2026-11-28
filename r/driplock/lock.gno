@@ -93,7 +93,8 @@ func renderLock(assetKey string, t int64) string {
 	var b strings.Builder
 	b.WriteString("# Proof of Lock: " + assetName(kind, asset) + "\n\n")
 	b.WriteString("Computed live by the chain from Driplock's escrow, not copied from an off-chain tracker. ")
-	b.WriteString("Asset key: `" + sanitize.InlineText(assetKey) + "`.\n\n")
+	// InlineCode picks a safe fence itself; InlineText would leave visible backslashes inside a code span.
+	b.WriteString("Asset key: " + sanitize.InlineCode(assetKey) + ".\n\n")
 
 	b.WriteString("| Measure | Amount |\n| --- | --- |\n")
 	b.WriteString("| Locked in Driplock now | " + fmtA(sum.Locked) + " |\n")

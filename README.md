@@ -19,6 +19,8 @@ Website: https://driplock.vercel.app
 - Demo token (DRIP): https://onyx.testnets.gno.land/r/g1c4p2qq2l7ndqrn7weez9z53x99mtv5rcxhm7s8/dripdemo
 - Schedule package: https://onyx.testnets.gno.land/p/g1c4p2qq2l7ndqrn7weez9z53x99mtv5rcxhm7s8/driplock/schedule
 - Realm address (approve this for GRC20 streams): `g1npjuw4a3ugnemqj5mkj9djxgdwuvz72g9gvmzc`
+- Demo data: four streams opened with `scripts/seed-onyx-demo.sh` (12 GNOT team grant with monthly steps and a 3-month cliff, 6 GNOT continuous advisor stream, a 10-minute 2 GNOT stream, and a 400 DRIP stream). See the [GNOT Proof of Lock page](https://onyx.testnets.gno.land/r/g1c4p2qq2l7ndqrn7weez9z53x99mtv5rcxhm7s8/driplock:lock/coin:ugnot).
+- Known cosmetic issue on the deployed version: the asset key line on a GRC20 Proof of Lock page shows backslashes (`gno\.land`). It is fixed in this repo; packages on gno.land are immutable, so the fix ships with the next deployment.
 
 Everything is a gnoweb page rendered from chain state. There is no separate frontend, indexer or server to trust.
 

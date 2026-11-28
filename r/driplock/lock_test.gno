@@ -93,6 +93,7 @@ func TestUnlockCalendar(cur realm, t *testing.T) {
 	uassert.True(t, strings.Contains(page, "**Reconciled:**"))
 	uassert.True(t, strings.Contains(page, "## Unlock calendar"))
 	uassert.True(t, strings.Contains(page, "never cancelable"))
+	uassert.True(t, strings.Contains(page, "Asset key: `coin:ugnot`."))
 }
 
 func TestLockPageUnknownAndHostile(cur realm, t *testing.T) {
